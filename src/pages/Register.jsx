@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router"
+import { useAuth } from "../context/AuthContext"
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ function Register() {
   const [successMessage, setSuccessMessage] = useState("")
 
   const navigate = useNavigate()
+  const { register } = useAuth()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -75,13 +77,19 @@ function Register() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // Register the user
+      const result = register(formData)
 
-      // Simulate successful registration
+      if (!result.success) {
+        setErrors({ submit: result.message })
+        setIsSubmitting(false)
+        return
+      }
+
+      // Registration successful
       setSuccessMessage("Ro'yxatdan muvaffaqiyatli o'tdingiz!")
 
-      // Redirect to login after 2 seconds
+      // Redirect to home after 2 seconds
       setTimeout(() => {
         navigate("/")
       }, 2000)

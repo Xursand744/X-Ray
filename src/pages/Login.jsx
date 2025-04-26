@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router"
+import { useAuth } from "../context/AuthContext"
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const navigate = useNavigate()
+  const { login, checkCredentials } = useAuth()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -54,11 +56,22 @@ function Login() {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Check if user exists with these credentials
+      const user = checkCredentials(formData.email, formData.password)
 
-      // For demo purposes, check if email contains "admin" to redirect to admin panel
-      if (formData.email.includes("admin")) {
+      if (!user) {
+        setErrors({
+          submit: "Noto'g'ri email yoki parol. Agar ro'yxatdan o'tmagan bo'lsangiz, iltimos avval ro'yxatdan o'ting.",
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      // Login successful
+      login(user)
+
+      // Redirect based on role
+      if (user.role === "admin") {
         navigate("/admin")
       } else {
         navigate("/")
